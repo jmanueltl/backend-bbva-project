@@ -1,0 +1,29 @@
+{
+  "name": "proyecto-backend-final",
+  "version": "1.0.0",
+  "description": "Proyecto final techu",
+  "main": "node.js",
+  "scripts": {
+    "dev": "nodemon node.js",
+    "pro": "node node.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "Proyecto",
+    "Perú",
+    "final",
+    "APIs",
+    "mongodb",
+    "polymer"
+  ],
+  "author": "Juan Tipismana Lara",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.16.4",
+    "request-json": "^0.6.3"
+  },
+  "devDependencies": {
+    "nodemon": "^1.18.6"
+  }
+}
