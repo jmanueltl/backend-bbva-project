@@ -1,5 +1,7 @@
 
-const app=require('./controllers/user');
-//const config=require('./config');
+const app=require('./app');
+const config=require('./config/config');
 
-app.listen(4000);
+app.listen(config.port,()=>{
+  console.log('API REST TECH U RUNNING ...');
+});

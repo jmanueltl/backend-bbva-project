@@ -1,18 +1,72 @@
-var express = require('express');
-var app = express();
-var port = process.env.PORT || 3000;
+'use strict'
+
 var URLbase = '/APIperu/v1/';
 var bodyParser = require('body-parser');
 var requestJson = require('request-json')
-
-
-app.use(bodyParser.json());
-
-var urlMlabRaiz = "https://api.mlab.com/api/1/databases/techupruebabbva/collections"
-var apiKey = "apiKey=7is_G5cOfCdtAwvu0orSgkcxVnSFGPo6"
-//antes  apiKey=fV5AFYohr91lw189YRMmOM513wT5HJKN
-
+const config = require('../config/config');
+var urlMlabRaiz = config.mlab_host+config.mlab_db+'/collections/';
 var clienteMlab
+
+
+function getUsers(req, res) {
+    clienteMlab = requestJson.createClient(urlMlabRaiz + config.mlab_collection_user + '?' + config.mlab_key)
+    clienteMlab.get('', function(err, resM, body) {
+      if (!err) {
+        res.send(body)
+      }
+    })
+}
+
+//get usuarios por id
+function getUsersId(req, res) {
+      var id = req.params.id
+      var query = 'q={"userID":' + id + '}'//'&f={"_id":0}'
+      clienteMlab = requestJson.createClient(urlMlabRaiz + config.mlab_collection_user+ '?' + query + "&l=1&" + config.mlab_key)
+      clienteMlab.get('', function(err, resM, body) {
+        if (!err) {
+          if (body.length > 0)
+            res.send(body[0])
+          else {
+            let response =  {"msg":"Usuario no existente"}
+            res.status(404).send(response)
+          }
+        }
+      })
+}
+
+module.exports= {
+getUsers,
+getUsersId
+}
+
+/*
+
+
+//GET CUENTAS DE UN USUARIO
+app.get(URLbase + 'users/:id/accounts', function(req, res) {
+  var idcliente = req.params.id
+  var query = 'q={"userID":' + idcliente + '}'
+  var filter = 'f={"account.transaction":0 , "email" : 0 , "password":0}'
+  clienteMlab = requestJson.createClient(urlMlabRaiz + "/user?" + query + "&" + filter + "&" + apiKey)
+  clienteMlab.get('', function(err, resM, body) {
+    if(!err) {
+      res.send(body)
+    }
+  })
+})
+
+// GET MOVIMIENTOS DE UNA CUENTA
+app.get(URLbase + 'users/:id/transaction', function(req, res) {
+  var idcliente = req.params.id
+  var query = 'q={"userID":' + idcliente + '}'
+  var filter = 'f={"account.transaction":1 , "email" : 0 , "password":0}'
+  clienteMlab = requestJson.createClient(urlMlabRaiz + "/user?" + query + "&" + filter + "&" + apiKey)
+  clienteMlab.get('', function(err, resM, body) {
+    if(!err) {
+      res.send(body)
+    }
+  })
+})
 
 app.get(URLbase + 'users', function(req, res) {
     clienteMlab = requestJson.createClient(urlMlabRaiz + "/user?" + apiKey)
@@ -23,6 +77,7 @@ app.get(URLbase + 'users', function(req, res) {
     })
 })
 
+//get usuarios por id
 app.get(URLbase + 'users/:id',  function(req, res) {
       var id = req.params.id
       var query = 'q={"userID":' + id + '}'//'&f={"_id":0}'
@@ -54,9 +109,26 @@ app.post( URLbase + 'users', function (req , res){
         });
   });
 
+//probando  pdf
+
+var path = require('path');
+
+app.get(URLbase + 'downloadFile', function (req, res) {
+   var file = path.join(__dirname, '/home/alumno/Descargas/INVITACION ENCUENTRO DE EGRESADOS 2018.pdf');
+   res.download(file, function (err) {
+       if (err) {
+           console.log("Error");
+           console.log(err);
+       } else {
+           console.log("Success");
+       }
+   });
+});
+
+
 
 //put users
-app.put( URLbase + 'users/:id', function (req, res){
+app.put( URLbase + 'users/userID:id', function (req, res){
     var id = req.params.id;
     var queryStringID = 'q={"userID":' + id + '}&';
     var clienteMlab =  requestJson.createClient(urlMlabRaiz);
@@ -74,7 +146,7 @@ app.put( URLbase + 'users/:id', function (req, res){
   });
 
 //DELETE user with id
-app.delete(URLbase + "users/:id",
+app.delete(URLbase + "users/userID:id",
   function(req, res){
     var id = req.params.id;
     var queryStringID = 'q={"userID":' + id + '}&';
@@ -89,54 +161,8 @@ app.delete(URLbase + "users/:id",
   });
 
 
-//LOGIN
-  app.post(URLbase + 'login', function(req, res) {
-      var email = req.body.email
-      var password = req.body.password
-      var query = 'q={"email":"' + email + '","password":"' + password + '"}'
-      clienteMlab = requestJson.createClient(urlMlabRaiz + "/user?" + query + "&l=1&" + apiKey)
-      clienteMlab.get('', function(err, resM, body) {
-        if (!err) {
-          if (body.length == 1) { // Login ok
-            console.log(body[0]);
-            var estado = '{"$set":{"logged":"true"}}'
-            clienteMlab.put(urlMlabRaiz + '/user?q={"userID": ' + body[0].userID + '}&' + apiKey, JSON.parse(estado),
-            function(errP, resP, bodyP) {
-                res.send({"login":"ok", "id":body[0]._id, "nombre":body[0].first_name, "apellidos":body[0].last_name})
-            })
-          }
-          else
-            res.status(404).send({"msg" : "Datos incorrectos"})
-        }
-        else
-          res.status(500).send({"msg":"Error del servidor interno"})
-      })
-  })
 
-//logout
-app.post(URLbase + 'logout', function(req, res) {
-    var id = req.body.userID
 
-    var query = 'q={"userID":' + id + ', "logged":"true"}'
-    clienteMlab = requestJson.createClient(urlMlabRaiz + "/user?" + query + "&l=1&" + apiKey)
-    clienteMlab.get('', function(err, resM, body) {
-      if (!err) {
-        if (body.length == 1) // Estaba logado
-        {
-          clienteMlab = requestJson.createClient(urlMlabRaiz + "/user")
-          var cambio = '{"$unset":{"logged":"true"}}'
-          clienteMlab.put('?q={"userID": ' + body[0].userID + '}&' + apiKey, JSON.parse(cambio),
-            function(errP, resP, bodyP) {
-              res.send({"logout":"ok", "id":body[0].userID})
-          })
-
-        }
-        else {
-          res.status(200).send('Usuario no logeado previamente')
-        }
-      }
-    })
-})
 
 
 //CUENTAS
@@ -152,5 +178,54 @@ app.get(URLbase + 'accounts/:id', function(req, res) {
   })
 })
 
+//LOGIN
+function login(req, res){
+      var email = req.body.email
+      console.log('aqui');
+      var password = req.body.password
+      var query = 'q={"email":"' + email + '","password":"' + password + '"}'
+      clienteMlab = requestJson.createClient(urlMlabRaiz + "/user?" + query + "&l=1&" + apiKey)
+      clienteMlab.get('', function(err, resM, body) {
+        if (!err) {
+          if (body.length == 1) { // Login ok
+            console.log(body[0]);
+            var estado = '{"$set":{"logged":"true"}}'
+            clienteMlab.put(urlMlabRaiz + '/user?q={"userID": ' + body[0].userID + '}&' + apiKey, JSON.parse(estado),
+            function(errP, resP, bodyP) {
+                res.send({"login":"ok", "id":body[0]._id, "nombre":body[0].first_name, "apellidos":body[0].last_name, "userID":body[0].userID, token:service.createToken(body[0].userID) })
+            })
+          }
+          else
+            res.status(404).send({"msg" : "Datos incorrectos"})
+        }
+        else
+          res.status(500).send({"msg":"Error del servidor interno"})
+      });
+  }
 
-module.exports=app;
+
+  //logout
+  function logout(req, res) {
+      var id = req.body.userID
+
+      var query = 'q={"userID":' + id + ', "logged":"true"}'
+      clienteMlab = requestJson.createClient(urlMlabRaiz + "/user?" + query + "&l=1&" + apiKey)
+      clienteMlab.get('', function(err, resM, body) {
+        if (!err) {
+          if (body.length == 1) // Estaba logado
+          {
+            clienteMlab = requestJson.createClient(urlMlabRaiz + "/user")
+            var cambio = '{"$unset":{"logged":"true"}}'
+            clienteMlab.put('?q={"userID": ' + body[0].userID + '}&' + apiKey, JSON.parse(cambio),
+              function(errP, resP, bodyP) {
+                res.send({"logout":"ok", "id":body[0].userID})
+            })
+
+          }
+          else {
+            res.status(404).send('Usuario no logeado previamente')
+          }
+        }
+      });
+  }
+*/
