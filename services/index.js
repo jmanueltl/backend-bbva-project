@@ -8,7 +8,7 @@ const config=require('../config/config');
     const payload={
       sub: id,
       iat: moment().unix(),
-      iat: moment().add(14,'days').unix(),
+      iat: moment().add(14,'minutes').unix(),
     };
     return jwt.encode(payload,config.SECRET_TOKEN);
   }

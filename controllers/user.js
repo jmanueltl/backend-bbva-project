@@ -34,26 +34,64 @@ function getUsersId(req, res) {
       })
 }
 
+
+function postUser(req , res){
+  clienteMlab = requestJson.createClient(urlMlabRaiz + "/user?" + config.mlab_key)
+  clienteMlab.get('', function(error, respuestaMLab, body){
+    if(!error || (newID === NaN) ){
+      var total = JSON.parse(body.length);
+      var newID = Math.max.apply(Math, body.map(function(o) {  return o.userID; })) + 1;
+      req.body.userID = newID;
+      var newObject = JSON.stringify(req.body);
+        clienteMlab.post( urlMlabRaiz +'/user?'+ config.mlab_key , JSON.parse(newObject),
+            function(error, respuestaMLab, body){
+              res.send(body);
+            });
+        }
+      });
+}
+
+
+//put users
+function updateUser(req, res){
+    var id = req.params.id;
+    var queryStringID = 'q={"userID":' + id + '}&';
+    var clienteMlab =  requestJson.createClient(urlMlabRaiz);
+    clienteMlab.get('user?'+ queryStringID + config.mlab_key,
+        function(error, respuestaMLab, body){
+                var cambio = '{"$set":'+ JSON.stringify(req.body)+'}';
+                  clienteMlab.put( urlMlabRaiz +'/user?'+ queryStringID +  config.mlab_key , JSON.parse(cambio),
+                    function(error, respuestaMLab, body){
+                        console.log("body:"+body);
+                        res.send(body);
+                    });
+        });
+
+  }
+
+//DELETE user with id
+function deleteUser(req, res){
+      var id = req.params.id;
+      var queryStringID = 'q={"userID":' + id + '}&';
+      var httpClient = requestJson.createClient(urlMlabRaiz + "/user?" + queryStringID + config.mlab_key);
+      httpClient.get('', function(error, respuestaMLab, body){
+          var respuesta = body[0];
+          httpClient.delete(urlMlabRaiz + "/user/" + respuesta._id.$oid +'?'+ config.mlab_key,
+            function(error, respuestaMLab,body){
+              res.send(body);
+          });
+        });
+}
+
 module.exports= {
 getUsers,
-getUsersId
+getUsersId,
+updateUser,
+postUser,
+deleteUser
 }
 
 /*
-
-
-//GET CUENTAS DE UN USUARIO
-app.get(URLbase + 'users/:id/accounts', function(req, res) {
-  var idcliente = req.params.id
-  var query = 'q={"userID":' + idcliente + '}'
-  var filter = 'f={"account.transaction":0 , "email" : 0 , "password":0}'
-  clienteMlab = requestJson.createClient(urlMlabRaiz + "/user?" + query + "&" + filter + "&" + apiKey)
-  clienteMlab.get('', function(err, resM, body) {
-    if(!err) {
-      res.send(body)
-    }
-  })
-})
 
 // GET MOVIMIENTOS DE UNA CUENTA
 app.get(URLbase + 'users/:id/transaction', function(req, res) {
@@ -95,19 +133,7 @@ app.get(URLbase + 'users/:id',  function(req, res) {
 })
 
 
-app.post( URLbase + 'users', function (req , res){
-  clienteMlab = requestJson.createClient(urlMlabRaiz + "/user?" + apiKey)
-  clienteMlab.get('', function(error, respuestaMLab, body){
-      var newID = Math.max.apply(Math, body.map(function(o) {  return o.userID; })) + 1;
-      console.log('nuevo id : '+newID);
-      req.body.userID = newID;
-      var newObject = JSON.stringify(req.body);
-        clienteMlab.post( urlMlabRaiz +'/user?'+ apiKey , JSON.parse(newObject),
-            function(error, respuestaMLab, body){
-              res.send(body);
-            });
-        });
-  });
+
 
 //probando  pdf
 
@@ -124,45 +150,6 @@ app.get(URLbase + 'downloadFile', function (req, res) {
        }
    });
 });
-
-
-
-//put users
-app.put( URLbase + 'users/userID:id', function (req, res){
-    var id = req.params.id;
-    var queryStringID = 'q={"userID":' + id + '}&';
-    var clienteMlab =  requestJson.createClient(urlMlabRaiz);
-    clienteMlab.get('user?'+ queryStringID + apiKey,
-        function(error, respuestaMLab, body){
-                var cambio = '{"$set":'+ JSON.stringify(req.body)+'}';
-                  clienteMlab.put( urlMlabRaiz +'/user?'+ queryStringID +  apiKey , JSON.parse(cambio),
-                    function(error, respuestaMLab, body){
-                      //console.log(respuestaMLab);
-                        console.log("body:"+body);
-                        res.send({"msg":"Usuario actualizado correctamente",body});
-                    });
-        });
-
-  });
-
-//DELETE user with id
-app.delete(URLbase + "users/userID:id",
-  function(req, res){
-    var id = req.params.id;
-    var queryStringID = 'q={"userID":' + id + '}&';
-    var httpClient = requestJson.createClient(urlMlabRaiz + "/user?" + queryStringID + apiKey);
-    httpClient.get('', function(error, respuestaMLab, body){
-        var respuesta = body[0];
-        httpClient.delete(urlMlabRaiz + "/user/" + respuesta._id.$oid +'?'+ apiKey,
-          function(error, respuestaMLab,body){
-            res.send(body);
-        });
-      });
-  });
-
-
-
-
 
 
 //CUENTAS

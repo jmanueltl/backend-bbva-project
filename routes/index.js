@@ -1,16 +1,28 @@
 'use strict'
 
 const express=require('express');
+const cors = require('cors');
 const userController=require('../controllers/user');
 const authController=require('../controllers/auth');
+const accountController=require('../controllers/account');
 
 const seg=require('../middleware');
 const api = express.Router();
 
+api.use(cors());
 
 api.get('/users',seg.isAuth,userController.getUsers);
 api.get('/users/:id',seg.isAuth,userController.getUsersId);
 
+//accounts
+api.get('/users/:id/accounts',seg.isAuth,accountController.getUserAccounts);
+api.put('/users/:id/accounts',seg.isAuth,accountController.postUserAccounts);
+api.delete('/users/:id/accounts/:idAccount',seg.isAuth,accountController.deleteUserAccounts);
+
+//users
+api.post('/users',userController.postUser);
+api.put('/users/:id',seg.isAuth,userController.updateUser);
+api.delete('/users/:id',seg.isAuth,userController.deleteUser);
 //USERS
 //api.get('/',{message:'BIENVENIDO A NUESTRA API'});
 /*

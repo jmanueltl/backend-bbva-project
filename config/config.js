@@ -6,5 +6,5 @@ module.exports={
   //'apiKey=B7MjpzWQ-YUoiPGR-u5aEQrbk7Q0_MaT',
   mlab_collection_user:process.env.MLAB_COLLECTION_USER||'user',
   URLbase:process.env.URL_BASE||'/APIperu/v1/',
-  SECRET_TOKEN:'TechU2017'
+  SECRET_TOKEN:'TechU2018'
 }
