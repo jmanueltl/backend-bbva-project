@@ -7,11 +7,24 @@ var urlMlabRaiz = config.mlab_host+config.mlab_db+'/collections/';
 var clienteMlab;
 
 
-//GET CUENTAS DE UN USUARIO
+//GET DETALLE CUENTAS DE UN USUARIO
 function getUserAccounts(req, res) {
   var idcliente = req.params.id
   var query = 'q={"userID":' + idcliente + '}'
   var filter = 'f={"account.transaction":0 , "email" : 0 , "password":0}'
+  clienteMlab = requestJson.createClient(urlMlabRaiz + "/user?" + query + "&" + filter + "&" + config.mlab_key)
+  clienteMlab.get('', function(err, resM, body) {
+    if(!err) {
+      res.send(body)
+    }
+  })
+}
+
+//GET SÒLO CUENTAS DE USUARIO - LLENA COMBO : CUENTA DE CARGO Y ABONO
+function getAccountDropdown(req, res) {
+  var idcliente = req.params.id
+  var query = 'q={"userID":' + idcliente + '}'
+  var filter = 'f={"account.nroAccount":1 , "account.nameAccount" : 1 , "account.saldo":1}'
   clienteMlab = requestJson.createClient(urlMlabRaiz + "/user?" + query + "&" + filter + "&" + config.mlab_key)
   clienteMlab.get('', function(err, resM, body) {
     if(!err) {
@@ -74,7 +87,6 @@ function deleteUserAccounts(req, res){
 function findAndRemove(array, property, value) {
   array.forEach(function(result, index) {
     if(result[property] === value) {
-      //Remove from array
       array.splice(index, 1);
     }
 
@@ -84,5 +96,6 @@ function findAndRemove(array, property, value) {
 module.exports={
   getUserAccounts,
   postUserAccounts,
-  deleteUserAccounts
+  deleteUserAccounts,
+  getAccountDropdown
 };

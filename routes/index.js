@@ -5,24 +5,31 @@ const cors = require('cors');
 const userController=require('../controllers/user');
 const authController=require('../controllers/auth');
 const accountController=require('../controllers/account');
+const transactionController= require('../controllers/transaction');
 
 const seg=require('../middleware');
 const api = express.Router();
 
 api.use(cors());
 
-api.get('/users',seg.isAuth,userController.getUsers);
-api.get('/users/:id',seg.isAuth,userController.getUsersId);
+
 
 //accounts
 api.get('/users/:id/accounts',seg.isAuth,accountController.getUserAccounts);
+api.get('/users/:id/accountDropdown',seg.isAuth,accountController.getAccountDropdown);
 api.put('/users/:id/accounts',seg.isAuth,accountController.postUserAccounts);
-api.delete('/users/:id/accounts/:idAccount',seg.isAuth,accountController.deleteUserAccounts);
+api.delete('/users/:id/accounts/:idAccount',seg.isAuth,accountController.deleteUserAccounts); //falta usar
 
 //users
+api.get('/users',seg.isAuth,userController.getUsers);
+api.get('/users/:id',seg.isAuth,userController.getUsersId);
 api.post('/users',userController.postUser);
 api.put('/users/:id',seg.isAuth,userController.updateUser);
 api.delete('/users/:id',seg.isAuth,userController.deleteUser);
+
+//transaction
+api.put('/users/:id/accounts/:idAccount',seg.isAuth,transactionController.postAccountTransaction);
+api.delete('/users/:id/accounts/:idAccount/transaction/:idTransaction',seg.isAuth,transactionController.deleteAccountTransaction);
 //USERS
 //api.get('/',{message:'BIENVENIDO A NUESTRA API'});
 /*
