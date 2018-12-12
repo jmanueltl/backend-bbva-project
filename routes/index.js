@@ -8,28 +8,31 @@ const accountController=require('../controllers/account');
 const transactionController= require('../controllers/transaction');
 
 const seg=require('../middleware');
-const api = express.Router();
+const app = express.Router();
 
-api.use(cors());
-
-
-
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'authorization, X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Allow-Request-Method');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
+    res.header('Allow', 'GET, POST, OPTIONS, PUT, DELETE');
+    next();
+});
 //accounts
-api.get('/users/:id/accounts',seg.isAuth,accountController.getUserAccounts);
-api.get('/users/:id/accountDropdown',seg.isAuth,accountController.getAccountDropdown);
-api.put('/users/:id/accounts',seg.isAuth,accountController.postUserAccounts);
-api.delete('/users/:id/accounts/:idAccount',seg.isAuth,accountController.deleteUserAccounts); //falta usar
+app.get('/users/:id/accounts',seg.isAuth,accountController.getUserAccounts);
+app.get('/users/:id/dropdownAccount',seg.isAuth,accountController.getAccountDropdown);
+app.put('/users/:id/accounts',seg.isAuth,accountController.postUserAccounts);
+app.delete('/users/:id/accounts/:idAccount',seg.isAuth,accountController.deleteUserAccounts); //falta usar
 
 //users
-api.get('/users',seg.isAuth,userController.getUsers);
-api.get('/users/:id',seg.isAuth,userController.getUsersId);
-api.post('/users',userController.postUser);
-api.put('/users/:id',seg.isAuth,userController.updateUser);
-api.delete('/users/:id',seg.isAuth,userController.deleteUser);
+app.get('/users/:id',seg.isAuth,userController.getUsersId);
+app.get('/users',seg.isAuth,userController.getUsers);
+app.post('/users',userController.postUser);
+app.put('/users/:id',seg.isAuth,userController.updateUser);
+app.delete('/users/:id',seg.isAuth,userController.deleteUser);
 
 //transaction
-api.put('/users/:id/accounts/:idAccount',seg.isAuth,transactionController.postAccountTransaction);
-api.delete('/users/:id/accounts/:idAccount/transaction/:idTransaction',seg.isAuth,transactionController.deleteAccountTransaction);
+app.put('/users/:id/transaction',seg.isAuth,transactionController.postAccountTransaction);
+app.delete('/users/:id/accounts/:idAccount/transaction/:idTransaction',seg.isAuth,transactionController.deleteAccountTransaction);
 //USERS
 //api.get('/',{message:'BIENVENIDO A NUESTRA API'});
 /*
@@ -44,8 +47,8 @@ api.put('/users/:id',seg.isAuth,userController.updateUser);
 api.delete('/users/:id',seg.isAuth,userController.removeUser);
 */
 //LOGIN
-api.post('/login',authController.login);
-api.post('/logout',authController.logout);
+app.post('/login',authController.login);
+app.post('/logout',authController.logout);
 /*
 //ACCOUNTS
 api.get('/accounts',seg.isAuth,accountController.getAccounts);
@@ -55,11 +58,11 @@ api.get('/movements',seg.isAuth,movieentController.getMovieents);
 api.get('/movements/:id',seg.isAuth,movieentController.getMovieent);
 */
 //TOKEN
-api.get('/seg',seg.isAuth,function (req,res){
+app.get('/seg',seg.isAuth,function (req,res){
   res.status(200).send({message:'ACCESO OK'});
 });
-api.get('/',function (req,res){
+app.get('/',function (req,res){
   res.status(200).send({message:'BIENVENIDOS A NUESTRA API'});
 });
 
-module.exports=api;
+module.exports=app;

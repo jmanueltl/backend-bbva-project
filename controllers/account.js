@@ -15,7 +15,7 @@ function getUserAccounts(req, res) {
   clienteMlab = requestJson.createClient(urlMlabRaiz + "/user?" + query + "&" + filter + "&" + config.mlab_key)
   clienteMlab.get('', function(err, resM, body) {
     if(!err) {
-      res.send(body)
+      res.send(body[0])
     }
   })
 }
@@ -28,7 +28,7 @@ function getAccountDropdown(req, res) {
   clienteMlab = requestJson.createClient(urlMlabRaiz + "/user?" + query + "&" + filter + "&" + config.mlab_key)
   clienteMlab.get('', function(err, resM, body) {
     if(!err) {
-      res.send(body)
+      res.send(body[0])
     }
   })
 }
@@ -41,18 +41,19 @@ function postUserAccounts(req, res){
   clienteMlab.get(' ',
         function(error, respuestaMLab, body){
           var newID;
-          var jsonStr = body[0];
-            if(body[0].account === undefined){
+          var jsonStr = body[0].account;
+            if(jsonStr === undefined || jsonStr.length == 0){
               newID = 1;
-              jsonStr.account = []
+              jsonStr = []
             }
             else{
-              newID = Math.max.apply(Math, body[0].account.map(function(o) {  return o.idAccount; })) + 1;
+              newID = Math.max.apply(Math, jsonStr.map(function(o) {  return o.idAccount; })) + 1;
             }
+
             if(!error || (newID === NaN) ){
                 req.body.idAccount = newID;
-                jsonStr.account.push(req.body);
-                var newAccount = '{"$set": {"account":'+ JSON.stringify(jsonStr.account)+'}}';
+                jsonStr.push(req.body);
+                var newAccount = '{"$set": {"account":'+ JSON.stringify(jsonStr)+'}}';
                   clienteMlab.put( urlMlabRaiz +'/user?'+ queryStringID + "&" +config.mlab_key , JSON.parse(newAccount),
                     function(error, respuestaMLab, body){
                         res.send(body);
