@@ -19,7 +19,7 @@ app.use((req, res, next) => {
 });
 //accounts
 app.get('/users/:id/accounts',seg.isAuth,accountController.getUserAccounts);
-app.get('/users/:id/dropdownAccount',seg.isAuth,accountController.getAccountDropdown);
+app.get('/users/:id/dropdownaccount',seg.isAuth,accountController.getAccountDropdown);
 app.put('/users/:id/accounts',seg.isAuth,accountController.postUserAccounts);
 app.delete('/users/:id/accounts/:idAccount',seg.isAuth,accountController.deleteUserAccounts); //falta usar
 
@@ -33,10 +33,8 @@ app.delete('/users/:id',seg.isAuth,userController.deleteUser);
 //transaction
 app.put('/users/:id/transaction',seg.isAuth,transactionController.postAccountTransaction);
 app.delete('/users/:id/accounts/:idAccount/transaction/:idTransaction',seg.isAuth,transactionController.deleteAccountTransaction);
-//USERS
-//api.get('/',{message:'BIENVENIDO A NUESTRA API'});
+app.put('/transactionaccount',seg.isAuth,transactionController.getAccountUserTx);
 /*
-
 api.get('/users/:id',seg.isAuth,userController.getUser);
 api.get('/users/:id/accounts',seg.isAuth,userController.getUserAccounts);
 api.get('/users/:id/accounts/:IBAN',seg.isAuth,userController.getUserAccount);

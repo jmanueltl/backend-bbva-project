@@ -70,6 +70,63 @@ function forEachAccount(jsonStr, account, obj){
   });
 }
 
+function getAccountUserTx(req , res){
+  var idAccountD = req.body.accountDestination
+  var idAccountO = req.body.accountOrigin
+  var queryStringIDD = 'q={"account.nroAccount": "' + idAccountD + '"}'
+  req.body;
+  var clienteMlab =  requestJson.createClient(urlMlabRaiz + config.mlab_collection_user+ '?' + queryStringIDD + "&l=1&" + config.mlab_key)
+  clienteMlab.get(' ',
+        function(error, respuestaMLab, body){
+            var jsonStr = body[0].account;
+            console.log(jsonStr);
+            var obj1 = {
+              "monto": Number(req.body.monto).toFixed(2) * Number(1.00).toFixed(2),
+              "description": req.body.description,
+              "dateTransfer": req.body.dateTransfer,
+              "typeOperation": req.body.typeOperation,
+            	"nameOperation": req.body.nameOperation,
+              "operation": req.body.operation,
+            	"accountOrigin": req.body.accountOrigin,
+            	"accountDestination": req.body.accountDestination,
+            	"moneda" : req.body.moneda,
+            	"email": req.body.email
+            };
+            console.log(obj1);
+            forEachAccount(jsonStr,obj1.accountDestination,obj1);
+            var newAccount = '{"$set": {"account":'+ JSON.stringify(jsonStr)+'}}';
+            clienteMlab.put( urlMlabRaiz +'/user?'+ queryStringIDD + "&" +config.mlab_key , JSON.parse(newAccount),
+              function(error, respuestaMLab, body){
+
+              });
+      });
+      var queryStringIDO = 'q={"account.nroAccount": "' + idAccountO + '"}'
+      var clienteMlab =  requestJson.createClient(urlMlabRaiz + config.mlab_collection_user+ '?' + queryStringIDO + "&l=1&" + config.mlab_key)
+      clienteMlab.get(' ',
+            function(error, respuestaMLab, body){
+                var jsonStr = body[0].account;
+                var obj2 = {
+                  "monto": Number(req.body.monto).toFixed(2) * Number(-1.00).toFixed(2),
+                  "description": req.body.description,
+                  "dateTransfer": req.body.dateTransfer,
+                  "typeOperation": req.body.typeOperation,
+                	"nameOperation": req.body.nameOperation,
+                  "operation": req.body.operation,
+                	"accountOrigin": req.body.accountOrigin,
+                	"accountDestination": req.body.accountDestination,
+                	"moneda" : req.body.moneda,
+                	"email": req.body.email
+                };
+                console.log(obj2);
+                forEachAccount(jsonStr,obj2.accountOrigin,obj2);
+                var newAccount = '{"$set": {"account":'+ JSON.stringify(jsonStr)+'}}';
+                clienteMlab.put( urlMlabRaiz +'/user?'+ queryStringIDO + "&" +config.mlab_key , JSON.parse(newAccount),
+                  function(error, respuestaMLab, body){
+                      res.send(body);
+                  });
+          });
+}
+
 
 function deleteAccountTransaction(req, res) {
   var idcliente = req.params.id
@@ -107,5 +164,6 @@ function findAndRemove(array, property, value) {
 
 module.exports={
   postAccountTransaction,
-  deleteAccountTransaction
+  deleteAccountTransaction,
+  getAccountUserTx
 };

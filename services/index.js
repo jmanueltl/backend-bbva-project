@@ -14,7 +14,6 @@ const config=require('../config/config');
   }
 
   function decodeToken(token){
-    console.log('token:'+token);
       const decode=new Promise((resolve,reject)=>{
       try{
         const payload= jwt.decode(token,config.SECRET_TOKEN);
