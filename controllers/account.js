@@ -52,6 +52,7 @@ function postUserAccounts(req, res){
 
             if(!error || (newID === NaN) ){
                 req.body.idAccount = newID;
+                req.body.saldoInicial = Number(req.body.saldo);
                 jsonStr.push(req.body);
                 var newAccount = '{"$set": {"account":'+ JSON.stringify(jsonStr)+'}}';
                   clienteMlab.put( urlMlabRaiz +'/user?'+ queryStringID + "&" +config.mlab_key , JSON.parse(newAccount),
@@ -90,7 +91,6 @@ function findAndRemove(array, property, value) {
     if(result[property] === value) {
       array.splice(index, 1);
     }
-
   });
 }
 

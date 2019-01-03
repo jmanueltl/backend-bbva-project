@@ -3,6 +3,7 @@
 var bodyParser = require('body-parser');
 var requestJson = require('request-json')
 const config = require('../config/config');
+
 var urlMlabRaiz = config.mlab_host+config.mlab_db+'/collections/';
 var clienteMlab;
 
@@ -63,7 +64,6 @@ function forEachAccount(jsonStr, account, obj){
           }
           else
             {newID = Math.max.apply(Math, item.transaction.map(function(o) {  return o.idTransaction; })) + 1;}
-            //console.log(newID);
           obj.idTransaction = newID;
           item.transaction.push(obj);
       }
@@ -79,7 +79,6 @@ function getAccountUserTx(req , res){
   clienteMlab.get(' ',
         function(error, respuestaMLab, body){
             var jsonStr = body[0].account;
-            console.log(jsonStr);
             var obj1 = {
               "monto": Number(req.body.monto).toFixed(2) * Number(1.00).toFixed(2),
               "description": req.body.description,
@@ -92,7 +91,7 @@ function getAccountUserTx(req , res){
             	"moneda" : req.body.moneda,
             	"email": req.body.email
             };
-            console.log(obj1);
+
             forEachAccount(jsonStr,obj1.accountDestination,obj1);
             var newAccount = '{"$set": {"account":'+ JSON.stringify(jsonStr)+'}}';
             clienteMlab.put( urlMlabRaiz +'/user?'+ queryStringIDD + "&" +config.mlab_key , JSON.parse(newAccount),
@@ -117,7 +116,7 @@ function getAccountUserTx(req , res){
                 	"moneda" : req.body.moneda,
                 	"email": req.body.email
                 };
-                console.log(obj2);
+
                 forEachAccount(jsonStr,obj2.accountOrigin,obj2);
                 var newAccount = '{"$set": {"account":'+ JSON.stringify(jsonStr)+'}}';
                 clienteMlab.put( urlMlabRaiz +'/user?'+ queryStringIDO + "&" +config.mlab_key , JSON.parse(newAccount),
