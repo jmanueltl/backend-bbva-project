@@ -8,8 +8,8 @@ WORKDIR /docker-api
 ADD . /docker-api
 
 # Instalar dependencias del proyecto en producción
-# RUN npm install --production
-#                 --only=production
+# RUN npm install 
+#
 
  # Puerto donde expondremos nuestro contenedor (mismo que definimos en nuestra API)
  EXPOSE 4000

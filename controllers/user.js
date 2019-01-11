@@ -20,7 +20,7 @@ function getUsers(req, res) {
 //get usuarios por id
 function getUsersId(req, res) {
       var id = req.params.id
-      var query = 'q={"userID":' + id + '}'//'&f={"_id":0}'
+      var query = 'q={"userID":' + id + '}'
       clienteMlab = requestJson.createClient(urlMlabRaiz + config.mlab_collection_user+ '?' + query + "&l=1&" + config.mlab_key)
       clienteMlab.get('', function(err, resM, body) {
         if (!err) {
