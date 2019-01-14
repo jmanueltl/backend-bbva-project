@@ -4,6 +4,7 @@
   "description": "Proyecto final techu",
   "main": "node.js",
   "scripts": {
+    "start": "node node.js",
     "dev": "nodemon node.js",
     "pro": "node node.js",
     "test": "echo \"Error: no test specified\" && exit 1"

@@ -1,5 +1,5 @@
 module.exports={
-  port:process.env.PORT|| 4000,
+  port:process.env.PORT|| 3000,
   mlab_host:process.env.MLAB_HOST||'https://api.mlab.com/api/1/databases/',
   mlab_db:process.env.MLAB_DB||'techupruebabbva',
   mlab_key:process.env.MLAB_KEY||'apiKey=7is_G5cOfCdtAwvu0orSgkcxVnSFGPo6',
